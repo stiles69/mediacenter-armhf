@@ -1,0 +1,86 @@
+version: '2'
+
+services:
+  sabnzbd:
+    image: lsioarmhf/sabnzbd
+    container_name: sabnzbd_container_compose
+    restart: always
+    ports:
+      - '9090:9090'
+      - '8080:8080'
+    volumes:
+      - "./sabnzbd/config:/config"
+      - "./sabnzbd/scripts:/scripts"
+      - "/torrents:/downloads"
+      - "/torrents:/incomplete-downloads"
+    env_file: 
+      - ./common.env
+    network_mode: "host"
+
+  radarr:
+    image: lsioarmhf/radarr
+    container_name: radarr_compose
+    restart: always
+    ports:
+      - '7878:7878'
+    volumes:
+      - "./radarr/config:/config"
+      - "/torrents:/downloads"
+      - "/torrents:/movies"
+    env_file:
+      - './common.env'
+    network_mode: 'host'
+    depends_on:
+      - sabnzbd
+
+  sonarr:
+    image: lsioarmhf/sonarr
+    container_name: sonarr_container_compose
+    restart: always
+    ports:
+      - '8989:8989'
+    volumes:
+      - "./sonarr/config:/config"
+      - "/torrents:/tv"
+      - "/torrents:/downloads"
+    env_file:
+      - './common.env'
+    network_mode: 'host'
+    depends_on:
+      - sabnzbd
+      - radarr
+
+  headphones:
+    image: lsioarmhf/headphones
+    container_name: headphones_container_compose
+    restart: always
+    ports:
+      - '8181:8181'
+    volumes:
+      - "./headphones/config:/config"
+      - "/torrents:/downloads"
+      - "/torrents/music:/config"
+    env_file:
+      - './common.env'
+    network_mode: "host"
+    depends_on: 
+      - sabnzbd
+      - radarr
+      - sonarr
+
+  htpcmanager:
+    image: lsioarmhf/htpcmanager
+    container_name: htpcmanager_container_compose
+    restart: always
+    ports:
+      - '8085:8085'
+    volumes:
+      - "./htpcmanager/config:/config"
+    env_file: 
+      - ./common.env
+    network_mode: "host"
+    depends_on:
+      - sabnzbd
+      - radarr
+      - sonarr
+      - headphones

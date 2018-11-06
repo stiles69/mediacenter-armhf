@@ -1,0 +1,10 @@
+#Added to keep common.env from uploading
+common.env
+
+# Not wanted uploaded
+config*
+
+# Script files
+script*
+
+
